@@ -1,0 +1,33 @@
+{
+    "name": "chainvote",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Decentralized voting system on Base and Stacks",
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "dev": "pnpm --filter web dev",
+        "build": "pnpm -r build",
+        "test": "pnpm -r test",
+        "test:e2e": "pnpm --filter web test:e2e",
+        "test:contracts": "pnpm run test:base && pnpm run test:stacks",
+        "test:base": "cd contracts/base && forge test",
+        "test:stacks": "cd contracts/stacks && clarinet test",
+        "deploy:base": "cd contracts/base && forge script script/Deploy.s.sol --broadcast",
+        "deploy:stacks": "cd contracts/stacks && clarinet deploy",
+        "lint": "pnpm -r lint",
+        "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.0",
+        "prettier": "^3.2.4",
+        "typescript": "^5.3.3"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "pnpm": ">=8.0.0"
+    },
+    "license": "MIT"
+}
