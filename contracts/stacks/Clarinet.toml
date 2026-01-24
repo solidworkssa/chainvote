@@ -1,0 +1,12 @@
+[project]
+name = "voting"
+requirements = []
+cache_dir = ".cache"
+
+[contracts.voting]
+path = "contracts/voting.clar"
+clarity_version = 2
+
+[repl]
+costs_version = 2
+parser_version = 2
