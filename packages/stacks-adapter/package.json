@@ -1,0 +1,19 @@
+{
+    "name": "stacks-adapter",
+    "version": "1.0.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    },
+    "dependencies": {
+        "@stacks/connect": "^7.8.2",
+        "@stacks/transactions": "^6.13.0",
+        "@stacks/network": "^6.13.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.3.3"
+    }
+}
