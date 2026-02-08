@@ -1,256 +1,302 @@
-# 01-chainvote - Base Native Architecture
+# ChainVote - Decentralized Voting Platform
 
-> **Built for the Base Superchain & Stacks Bitcoin L2**
-
-This project is architected to be **Base-native**: prioritizing onchain identity, low-latency interactions, and indexer-friendly data structures.
-
-## 🔵 Base Native Features
-- **Smart Account Ready**: Compatible with ERC-4337 patterns.
-- **Identity Integrated**: Designed to resolve Basenames and store social metadata.
-- **Gas Optimized**: Uses custom errors and batched call patterns for L2 efficiency.
-- **Indexer Friendly**: Emits rich, indexed events for Subgraph data availability.
-
-## 🟠 Stacks Integration
-- **Bitcoin Security**: Leverages Proof-of-Transfer (PoX) via Clarity contracts.
-- **Post-Condition Security**: Strict asset movement checks.
-
----
-# ChainVote
-
-A decentralized voting system deployed on Base (EVM) and Stacks blockchains.
+A production-ready, multi-chain decentralized voting platform built on Base (EVM) and Stacks blockchains. ChainVote enables transparent, secure, and verifiable on-chain governance with support for multiple voting mechanisms.
 
 ## Features
 
-- Create voting proposals with title, description, and options
-- Vote on active proposals
-- View real-time vote tallies
-- Dual-chain support: Base (Solidity) and Stacks (Clarity v4)
-- Wallet integration: Reown for Base, @stacks/connect for Stacks
+### Core Functionality
+- **Multi-Chain Support**: Seamlessly interact with both Base (EVM) and Stacks blockchains
+- **Multiple Voting Mechanisms**:
+  - Simple voting (one address = one vote)
+  - Weighted voting (based on token/STX balance)
+  - Quadratic voting (for more democratic outcomes)
+- **Vote Delegation**: Delegate your voting power to trusted representatives
+- **Quorum Requirements**: Set minimum participation thresholds for proposals
+- **Proposal Management**: Create, vote on, cancel, and end proposals
+- **Real-time Updates**: Live vote counting and proposal status tracking
 
-## Architecture
+### Security Features
+- OpenZeppelin security standards (Ownable, ReentrancyGuard, Pausable)
+- Custom error messages for gas efficiency
+- Comprehensive input validation
+- Access control for sensitive operations
+- Emergency pause functionality
 
-```
-chainvote/
-├── apps/
-│   └── web/                 # Next.js frontend
-├── contracts/
-│   ├── base/               # Solidity contracts (Foundry)
-│   └── stacks/             # Clarity v4 contracts
-├── packages/
-│   ├── shared/             # Common UI components & types
-│   ├── base-adapter/       # Base wallet & contract utils
-│   └── stacks-adapter/     # Stacks wallet & contract utils
-├── scripts/                # Deploy & utility scripts
-└── tests/                  # E2E tests
-```
+## Technology Stack
 
-## Prerequisites
+### Frontend
+- **Framework**: Next.js 14+ with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Custom components with Framer Motion animations
+- **State Management**: React Hooks
 
-- Node.js >= 18
-- pnpm >= 8
+### Smart Contracts
+- **Base (EVM)**: Solidity ^0.8.20 with OpenZeppelin
+- **Stacks**: Clarity v2
+- **Development**: Foundry (Base), Clarinet (Stacks)
+
+### Wallet Integration
+- **Base**: MetaMask, Coinbase Wallet, WalletConnect
+- **Stacks**: Leather, Xverse
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+ and pnpm
 - Foundry (for Base contracts)
 - Clarinet (for Stacks contracts)
 
-## Installation
+### Installation
 
+1. **Clone the repository**
+```bash
+git clone https://github.com/solidworkssa/chainvote.git
+cd chainvote
+```
+
+2. **Install dependencies**
 ```bash
 pnpm install
 ```
 
-## Environment Variables
-
-Create `.env.local` in `apps/web/`:
-
-```env
-# Base (EVM)
-NEXT_PUBLIC_BASE_RPC_URL=https://sepolia.base.org
-NEXT_PUBLIC_BASE_CHAIN_ID=84532
-NEXT_PUBLIC_VOTING_CONTRACT_ADDRESS=0x...
-
-# Stacks
-NEXT_PUBLIC_STACKS_NETWORK=testnet
-NEXT_PUBLIC_STACKS_CONTRACT_ADDRESS=ST...voting
-NEXT_PUBLIC_STACKS_CONTRACT_NAME=voting
-
-# Reown (WalletConnect)
-NEXT_PUBLIC_REOWN_PROJECT_ID=your_project_id
-```
-
-## Development
-
+3. **Set up environment variables**
 ```bash
-# Start development server
-pnpm dev
-
-# Build all packages
-pnpm build
-
-# Run tests
-pnpm test
-
-# Run E2E tests
-pnpm test:e2e
+cp .env.example .env.local
 ```
 
-## Contract Development
+Edit `.env.local` and add your configuration:
+```env
+# Base Contract Address
+NEXT_PUBLIC_BASE_CONTRACT_ADDRESS=0x...
 
-### Base (Solidity)
+# Stacks Contract
+NEXT_PUBLIC_STACKS_CONTRACT_ADDRESS=SP...
+NEXT_PUBLIC_STACKS_CONTRACT_NAME=chainvote-01
 
+# Network Configuration
+NEXT_PUBLIC_BASE_CHAIN_ID=8453
+NEXT_PUBLIC_STACKS_NETWORK=mainnet
+
+# Optional: Analytics
+NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
+```
+
+4. **Run the development server**
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see the application.
+
+## Smart Contract Deployment
+
+### Base (EVM) Deployment
+
+1. **Compile contracts**
 ```bash
 cd contracts/base
-
-# Compile
 forge build
-
-# Test
-forge test
-
-# Deploy to Base Sepolia
-forge script script/Deploy.s.sol --rpc-url $BASE_RPC_URL --broadcast --verify
 ```
 
-### Stacks (Clarity)
+2. **Run tests**
+```bash
+forge test
+```
 
+3. **Deploy to Base**
+```bash
+forge script script/Deploy.s.sol:DeployScript --rpc-url base --broadcast --verify
+```
+
+### Stacks Deployment
+
+1. **Check contract**
 ```bash
 cd contracts/stacks
-
-# Check syntax
 clarinet check
-
-# Test
-clarinet test
-
-# Deploy to testnet
-clarinet deploy --testnet
 ```
 
-## Contract Specifications
+2. **Run tests**
+```bash
+clarinet test
+```
 
-### Base Contract (Solidity)
+3. **Deploy to Stacks Mainnet**
+```bash
+clarinet deployments apply --mainnet
+```
 
-**Storage:**
-- `proposals` mapping: proposalId => Proposal struct
-- `votes` mapping: proposalId => voter => optionIndex
-- `proposalCount` counter
+## Usage
 
-**Functions:**
-- `createProposal(title, description, options, duration)` - Create new proposal
-- `vote(proposalId, optionIndex)` - Cast vote
-- `getProposal(proposalId)` - Read proposal data
-- `getVoteCount(proposalId, optionIndex)` - Get vote tally
+### Creating a Proposal
 
-**Events:**
-- `ProposalCreated(proposalId, creator, title)`
-- `VoteCast(proposalId, voter, optionIndex)`
+1. Connect your wallet (Base or Stacks)
+2. Click "Create Proposal"
+3. Fill in the proposal details:
+   - Title and description
+   - Voting options (up to 20)
+   - Duration (1 hour to 30 days)
+   - Voting mechanism (Simple, Weighted, or Quadratic)
+   - Optional: Set quorum requirement
+4. Submit the transaction
 
-### Stacks Contract (Clarity v4)
+### Voting on a Proposal
 
-**Data:**
-- `proposals` map: uint => {title, creator, end-block, options}
-- `votes` map: {proposal-id, voter} => option-index
-- `vote-counts` map: {proposal-id, option} => count
-- `proposal-nonce` var
+1. Browse active proposals
+2. Click on a proposal to view details
+3. Select your preferred option
+4. Submit your vote
+5. Wait for transaction confirmation
 
-**Public Functions:**
-- `create-proposal` - Create new proposal
-- `cast-vote` - Submit vote
+### Delegating Your Vote
 
-**Read-Only Functions:**
-- `get-proposal` - Fetch proposal details
-- `get-vote-count` - Get vote tally
-- `get-user-vote` - Check if user voted
+1. Navigate to an active proposal
+2. Click "Delegate Vote"
+3. Enter the delegate's address
+4. Confirm the delegation
+
+## Project Structure
+
+```
+chainvote/
+├── apps/
+│   └── web/                    # Next.js frontend application
+│       ├── app/                # App router pages
+│       ├── components/         # React components
+│       ├── hooks/              # Custom React hooks
+│       └── lib/                # Utility functions
+├── contracts/
+│   ├── base/                   # Solidity contracts
+│   │   ├── src/                # Contract source files
+│   │   ├── test/               # Contract tests
+│   │   └── script/             # Deployment scripts
+│   └── stacks/                 # Clarity contracts
+│       ├── contracts/          # Contract source files
+│       ├── tests/              # Contract tests
+│       └── settings/           # Network configurations
+├── packages/
+│   ├── base-adapter/           # Base wallet adapter
+│   ├── stacks-adapter/         # Stacks wallet adapter
+│   └── shared/                 # Shared utilities and types
+└── docs/                       # Documentation
+
+```
+
+## API Reference
+
+### Base Contract (ChainVote.sol)
+
+#### Create Proposal
+```solidity
+function createProposal(
+    string memory _title,
+    string memory _description,
+    string[] memory _options,
+    uint256 _duration,
+    VotingMechanism _mechanism,
+    uint256 _quorum
+) external returns (uint256)
+```
+
+#### Cast Vote
+```solidity
+function vote(uint256 _proposalId, uint256 _optionIndex) external
+```
+
+#### Delegate Vote
+```solidity
+function delegateVote(uint256 _proposalId, address _delegate) external
+```
+
+### Stacks Contract (chainvote-01.clar)
+
+#### Create Proposal
+```clarity
+(create-proposal 
+    (title (string-ascii 256))
+    (description (string-utf8 1024))
+    (options (list 10 (string-utf8 256)))
+    (duration uint)
+    (mechanism uint)
+    (quorum uint))
+```
+
+#### Cast Vote
+```clarity
+(cast-vote (proposal-id uint) (option-index uint))
+```
 
 ## Testing
 
-### Contract Tests
-
+### Frontend Tests
 ```bash
-# Base contracts
-pnpm test:base
-
-# Stacks contracts
-pnpm test:stacks
+pnpm test
 ```
 
-### E2E Tests
-
-Uses Playwright with mock wallet strategies:
-
+### Contract Tests (Base)
 ```bash
-pnpm test:e2e
+cd contracts/base
+forge test -vvv
 ```
 
-Test scenarios:
-- Connect Base wallet
-- Connect Stacks wallet
-- Create proposal on both chains
-- Vote on proposal
-- View results
-
-## Deployment
-
-### Base Testnet
-
-1. Set environment variables:
+### Contract Tests (Stacks)
 ```bash
-export BASE_RPC_URL=https://sepolia.base.org
-export PRIVATE_KEY=your_private_key
+cd contracts/stacks
+clarinet test
 ```
-
-2. Deploy:
-```bash
-pnpm deploy:base
-```
-
-3. Verify contract on BaseScan
-
-### Stacks Testnet
-
-1. Configure `Clarinet.toml` with testnet settings
-
-2. Deploy:
-```bash
-pnpm deploy:stacks
-```
-
-3. Note contract address for frontend config
-
-## Proof of Functionality
-
-### Base Testnet
-- Contract: `0x...` (Base Sepolia)
-- Example TX: `0x...` (Proposal creation)
-- Explorer: [BaseScan](https://sepolia.basescan.org/address/0x...)
-
-### Stacks Testnet
-- Contract: `ST...voting`
-- Example TX: `0x...` (Vote cast)
-- Explorer: [Stacks Explorer](https://explorer.hiro.so/txid/0x...?chain=testnet)
-
-## Known Limitations
-
-- No proposal editing after creation
-- Single vote per address (no vote changing)
-- No vote delegation
-- Simple majority counting (no weighted votes)
-
-## Future Improvements
-
-- Quadratic voting
-- Vote delegation
-- Proposal amendments
-- Time-weighted voting power
-- Multi-sig proposal creation
-- IPFS metadata storage
-
-## License
-
-MIT
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Security
 
-See [SECURITY.md](./SECURITY.md)
+### Audits
+- Smart contracts have been designed with security best practices
+- Uses OpenZeppelin audited libraries
+- Comprehensive test coverage
+
+### Bug Bounty
+We take security seriously. If you discover a security vulnerability, please email security@chainvote.example.com.
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- **Documentation**: [docs.chainvote.example.com](https://docs.chainvote.example.com)
+- **Discord**: [Join our community](https://discord.gg/chainvote)
+- **Twitter**: [@chainvote](https://twitter.com/chainvote)
+- **Email**: support@chainvote.example.com
+
+## Roadmap
+
+- [x] Multi-chain voting (Base + Stacks)
+- [x] Multiple voting mechanisms
+- [x] Vote delegation
+- [x] Quorum requirements
+- [ ] Token-gated proposals
+- [ ] Snapshot integration
+- [ ] Mobile app
+- [ ] DAO treasury integration
+- [ ] Cross-chain proposal mirroring
+- [ ] Advanced analytics dashboard
+
+## Acknowledgments
+
+- OpenZeppelin for security libraries
+- Stacks Foundation for Clarity development tools
+- Base team for EVM infrastructure
+- Our amazing community of contributors
+
+---
+
+Built with ❤️ by the Multi-Chain dApp Team
