@@ -6,10 +6,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 /// @title ChainVote - Decentralized Voting System
-/// @author Multi-Chain dApp Team
+/// @author solidworkssa
 /// @notice This contract allows users to create and vote on proposals with various voting mechanisms
 /// @dev Implements weighted voting, delegation, and quadratic voting options
 contract ChainVote is Ownable, ReentrancyGuard, Pausable {
+    string public constant VERSION = "1.0.0";
+
     /// @notice Voting mechanism types
     enum VotingMechanism {
         Simple,        // One address = one vote
