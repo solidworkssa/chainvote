@@ -49,3 +49,12 @@ costs-reports.txt
 
 # Misc
 *.tsbuildinfo
+
+# Clarinet generated
+contracts/stacks/settings/
+contracts/stacks/deployments/
+
+# Local scripts
+_run_fixes.py
+*.sh
+interact-all.js
