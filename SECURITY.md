@@ -2,80 +2,36 @@
 
 ## Supported Versions
 
-We release patches for security vulnerabilities for the following versions:
-
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.x.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-We take the security of ChainVote seriously. If you believe you have found a security vulnerability, please report it to us as described below.
+We take the security of ChainVote seriously. If you believe you have found a security vulnerability, please report it responsibly.
 
-### Please Do Not
+### Do Not
 
 - Open a public GitHub issue for security vulnerabilities
 - Disclose the vulnerability publicly before it has been addressed
 
-### Please Do
+### Do
 
-1. Email security details to: [your-security-email@example.com]
-2. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if any)
+- Email us at solidworkssa@gmail.com with details
+- Include steps to reproduce the issue
+- Allow reasonable time for a fix before any public disclosure
 
-### What to Expect
+## Security Considerations
 
-- Acknowledgment of your report within 48 hours
-- Regular updates on our progress
-- Credit in the security advisory (if desired)
+- All smart contracts should be audited before mainnet deployment
+- Use environment variables for sensitive configuration
+- Never commit private keys, mnemonics, or API secrets
+- Review all dependency updates for known vulnerabilities
+- Follow the principle of least privilege in contract design
 
-## Security Best Practices
+## Scope
 
-When using ChainVote:
-
-1. **Smart Contracts**
-   - Contracts are provided as-is
-   - Conduct your own security audit before mainnet deployment
-   - Use testnet for initial testing
-   - Consider bug bounty programs for production deployments
-
-2. **Wallet Security**
-   - Never share your private keys
-   - Use hardware wallets for significant holdings
-   - Verify transaction details before signing
-   - Be cautious of phishing attempts
-
-3. **Frontend Security**
-   - Verify you're on the correct domain
-   - Keep your browser and extensions updated
-   - Review transaction details in your wallet
-
-## Known Limitations
-
-- Proposals cannot be edited after creation
-- Votes cannot be changed once cast
-- No built-in Sybil resistance
-- Simple majority voting only
-
-## Audit Status
-
-This project has not undergone a professional security audit. Use at your own risk.
-
-## Bug Bounty
-
-We currently do not have a bug bounty program. This may change in the future.
-
-## Disclosure Policy
-
-When we receive a security bug report, we will:
-
-1. Confirm the problem and determine affected versions
-2. Audit code to find similar problems
-3. Prepare fixes for all supported versions
-4. Release new versions as soon as possible
-5. Publish a security advisory
-
-Thank you for helping keep ChainVote and our users safe!
+This policy covers:
+- Smart contracts in `contracts/`
+- Frontend application in `apps/web/`
+- Shared packages in `packages/`
