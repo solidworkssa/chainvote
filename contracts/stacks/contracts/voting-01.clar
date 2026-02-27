@@ -75,7 +75,7 @@
         
         ;; Store proposal
         (map-set proposals proposal-id {
-            creator: tx-sender,
+            creator: contract-caller,
             title: title,
             description: description,
             end-block: end-block,
@@ -114,11 +114,11 @@
         ;; Validations
         (asserts! (get active proposal) ERR-NOT-ACTIVE)
         (asserts! (< block-height (get end-block proposal)) ERR-PROPOSAL-ENDED)
-        (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: tx-sender})) ERR-ALREADY-VOTED)
+        (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: contract-caller})) ERR-ALREADY-VOTED)
         (asserts! (< option-index (get option-count proposal)) ERR-INVALID-OPTION)
         
         ;; Record vote
-        (map-set votes {proposal-id: proposal-id, voter: tx-sender} option-index)
+        (map-set votes {proposal-id: proposal-id, voter: contract-caller} option-index)
         (map-set vote-counts {proposal-id: proposal-id, option-index: option-index} (+ current-count u1))
         
         ;; Update total votes
@@ -134,7 +134,7 @@
         (
             (proposal (unwrap! (map-get? proposals proposal-id) ERR-NOT-FOUND))
         )
-        (asserts! (is-eq tx-sender (get creator proposal)) ERR-UNAUTHORIZED)
+        (asserts! (is-eq contract-caller (get creator proposal)) ERR-UNAUTHORIZED)
         (asserts! (get active proposal) ERR-NOT-ACTIVE)
         
         (map-set proposals proposal-id (merge proposal {active: false}))
