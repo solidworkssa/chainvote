@@ -2,7 +2,7 @@
 ;; Implements weighted voting, delegation, and comprehensive proposal management
 
 ;; Constants
-(define-constant CONTRACT-OWNER tx-sender)
+(define-constant CONTRACT-OWNER contract-caller)
 (define-constant ERR-NOT-FOUND (err u100))
 (define-constant ERR-ALREADY-VOTED (err u101))
 (define-constant ERR-PROPOSAL-ENDED (err u102))
@@ -181,7 +181,7 @@
         
         ;; Store proposal
         (map-set proposals proposal-id {
-            creator: tx-sender,
+            creator: contract-caller,
             title: title,
             description: description,
             start-block: block-height,
@@ -205,7 +205,7 @@
         (print {
             event: "proposal-created",
             proposal-id: proposal-id,
-            creator: tx-sender,
+            creator: contract-caller,
             title: title,
             end-block: end-block
         })
@@ -219,19 +219,19 @@
         (
             (proposal (unwrap! (map-get? proposals proposal-id) ERR-NOT-FOUND))
             (current-count (default-to u0 (map-get? vote-counts {proposal-id: proposal-id, option-index: option-index})))
-            (vote-weight (calculate-vote-weight tx-sender (get mechanism proposal)))
+            (vote-weight (calculate-vote-weight contract-caller (get mechanism proposal)))
             (new-total-votes (+ (get total-votes proposal) vote-weight))
         )
         ;; Validations
         (asserts! (not (var-get contract-paused)) ERR-UNAUTHORIZED)
         (asserts! (is-eq (get status proposal) "active") ERR-NOT-ACTIVE)
         (asserts! (< block-height (get end-block proposal)) ERR-PROPOSAL-ENDED)
-        (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: tx-sender})) ERR-ALREADY-VOTED)
+        (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: contract-caller})) ERR-ALREADY-VOTED)
         (asserts! (< option-index (get option-count proposal)) ERR-INVALID-OPTION)
-        (asserts! (is-none (map-get? delegations {proposal-id: proposal-id, delegator: tx-sender})) ERR-ALREADY-DELEGATED)
+        (asserts! (is-none (map-get? delegations {proposal-id: proposal-id, delegator: contract-caller})) ERR-ALREADY-DELEGATED)
         
         ;; Record vote
-        (map-set votes {proposal-id: proposal-id, voter: tx-sender} {
+        (map-set votes {proposal-id: proposal-id, voter: contract-caller} {
             option-index: option-index,
             weight: vote-weight,
             timestamp: block-height
@@ -252,7 +252,7 @@
         (print {
             event: "vote-cast",
             proposal-id: proposal-id,
-            voter: tx-sender,
+            voter: contract-caller,
             option-index: option-index,
             weight: vote-weight
         })
@@ -270,11 +270,11 @@
         (asserts! (not (var-get contract-paused)) ERR-UNAUTHORIZED)
         (asserts! (is-eq (get status proposal) "active") ERR-NOT-ACTIVE)
         (asserts! (< block-height (get end-block proposal)) ERR-PROPOSAL-ENDED)
-        (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: tx-sender})) ERR-ALREADY-VOTED)
-        (asserts! (not (is-eq delegate tx-sender)) ERR-UNAUTHORIZED)
+        (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: contract-caller})) ERR-ALREADY-VOTED)
+        (asserts! (not (is-eq delegate contract-caller)) ERR-UNAUTHORIZED)
         
         ;; Record delegation
-        (map-set delegations {proposal-id: proposal-id, delegator: tx-sender} {
+        (map-set delegations {proposal-id: proposal-id, delegator: contract-caller} {
             delegate: delegate,
             timestamp: block-height
         })
@@ -282,7 +282,7 @@
         (print {
             event: "vote-delegated",
             proposal-id: proposal-id,
-            delegator: tx-sender,
+            delegator: contract-caller,
             delegate: delegate
         })
         
@@ -315,7 +315,7 @@
         (
             (proposal (unwrap! (map-get? proposals proposal-id) ERR-NOT-FOUND))
         )
-        (asserts! (or (is-eq tx-sender (get creator proposal)) (is-eq tx-sender CONTRACT-OWNER)) ERR-UNAUTHORIZED)
+        (asserts! (or (is-eq contract-caller (get creator proposal)) (is-eq contract-caller CONTRACT-OWNER)) ERR-UNAUTHORIZED)
         (asserts! (is-eq (get status proposal) "active") ERR-NOT-ACTIVE)
         
         (map-set proposals proposal-id (merge proposal {status: "cancelled"}))
@@ -323,7 +323,7 @@
         (print {
             event: "proposal-cancelled",
             proposal-id: proposal-id,
-            canceller: tx-sender
+            canceller: contract-caller
         })
         
         (ok true)
@@ -332,7 +332,7 @@
 
 (define-public (pause-contract)
     (begin
-        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+        (asserts! (is-eq contract-caller CONTRACT-OWNER) ERR-UNAUTHORIZED)
         (var-set contract-paused true)
         (ok true)
     )
@@ -340,7 +340,7 @@
 
 (define-public (unpause-contract)
     (begin
-        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+        (asserts! (is-eq contract-caller CONTRACT-OWNER) ERR-UNAUTHORIZED)
         (var-set contract-paused false)
         (ok true)
     )
