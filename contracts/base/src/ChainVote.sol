@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 /// @author solidworkssa
 /// @notice This contract allows users to create and vote on proposals with various voting mechanisms
 /// @dev Implements weighted voting, delegation, and quadratic voting options
-contract ChainVote is Ownable, ReentrancyGuard, Pausable {
+contract ChainVote is Ownable2Step, ReentrancyGuard, Pausable {
     string public constant VERSION = "1.0.0";
 
     /// @notice Voting mechanism types
@@ -122,7 +122,7 @@ contract ChainVote is Ownable, ReentrancyGuard, Pausable {
     error InvalidQuorum();
     error QuorumNotReached();
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable2Step(msg.sender) {}
 
     /// @notice Create a new proposal
     /// @param _title Proposal title
